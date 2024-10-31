@@ -15,11 +15,15 @@
     </properties>
 
     <dependencies>
+        <!-- Jpaxos -->
         <dependency>
             <groupId>github_jpaxos</groupId>
             <artifactId>jpaxos</artifactId>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/jpaxos.jar</systemPath>
             <version>1</version>
         </dependency>
+        <!-- Log -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
