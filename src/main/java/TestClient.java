@@ -17,11 +17,17 @@ public class TestClient {
 
         try {
             Configuration config = new Configuration("jpaxos.properties");
+
+            // create client instance
             Client client = new Client(config);
+
+            // start client
             client.connect();
 
+            // get file in the form of byte array
             byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
 
+            // send request to replica
             byte[] response = client.execute(fileContent);
 
             System.out.println("Response received: " + new String(response));

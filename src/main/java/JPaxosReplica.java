@@ -9,10 +9,16 @@ public class JPaxosReplica {
             System.exit(1);
         }
 
+        // get replica id from arguments
         int replicaId = Integer.parseInt(args[0]);
+
+        // get configurations from the config file
         Configuration config = new Configuration("jpaxos.properties");
 
+        // create a new replica instance
         Replica replica = new Replica(config, replicaId, new FileStorageService(replicaId));
+
+        // start replica
         replica.start();
     }
 }

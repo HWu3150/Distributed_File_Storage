@@ -17,6 +17,12 @@ public class FileStorageService extends SimplifiedService{
         this.replicaId = replicaId;
     }
 
+    /**
+     * Stores file at current replica.
+     *
+     * @param value File to be stored in the form a byte array.
+     * @return Whether file has been successfully stored.
+     */
     @Override
     protected byte[] execute(byte[] value) {
         try {
@@ -30,6 +36,11 @@ public class FileStorageService extends SimplifiedService{
         }
     }
 
+    /**
+     * Makes snapshot of current service state (list of files in the current replica).
+     *
+     * @return Byte array of the snapshot.
+     */
     @Override
     protected byte[] makeSnapshot() {
         try{
@@ -43,6 +54,11 @@ public class FileStorageService extends SimplifiedService{
         }
     }
 
+    /**
+     * Update the current state of service to state from snapshot for recovery & catch-up purposes.
+     *
+     * @param snapshot Byte array of the snapshot.
+     */
     @Override
     protected void updateToSnapshot(byte[] snapshot) {
         try {
