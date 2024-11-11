@@ -1,20 +1,24 @@
 import lsr.service.SimplifiedService;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class FileStorageService extends SimplifiedService{
 
-    private static final String STORAGE_DIR = "replicated_files";
+    private static final String STORAGE_DIR_PREFIX = "replicated_files";
     private final Integer replicaId;
+    private final String storage_dir;
 
     public FileStorageService(int replicaId) {
-        File storageDir = new File(STORAGE_DIR);
+        this.replicaId = replicaId;
+        this.storage_dir = STORAGE_DIR_PREFIX + "_replica_" + replicaId;
+
+        File storageDir = new File(storage_dir);
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
-        this.replicaId = replicaId;
     }
 
     /**
@@ -26,9 +30,10 @@ public class FileStorageService extends SimplifiedService{
     @Override
     protected byte[] execute(byte[] value) {
         try {
-            File file = new File(STORAGE_DIR, "replicated_file_" + replicaId + System.currentTimeMillis());
-            Files.write(file.toPath(), value);
-            System.out.println("File has been stored at: " + file.getAbsolutePath());
+            FileData fileData = parseFileData(value);
+            File file = new File(storage_dir, fileData.getFileName());
+            Files.write(file.toPath(), fileData.getFileContent());
+            System.out.println("File: " + fileData.getFileName() + "has been stored at: " + file.getAbsolutePath());
             return "File received and stored.".getBytes();
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,7 +51,7 @@ public class FileStorageService extends SimplifiedService{
         try{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(new File(STORAGE_DIR).listFiles());
+            oos.writeObject(new File(storage_dir).listFiles());
             oos.close();
             return baos.toByteArray();
         } catch (IOException e) {
@@ -66,10 +71,35 @@ public class FileStorageService extends SimplifiedService{
             ObjectInputStream ois = new ObjectInputStream(bais);
             File[] files = (File[]) ois.readObject();
             for (File file : files) {
-                Files.copy(file.toPath(), Paths.get(STORAGE_DIR, file.getName()));
+                Files.copy(file.toPath(), Paths.get(storage_dir, file.getName()));
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to restore snapshot", e);
         }
+    }
+
+    /**
+     * Parse the file data sent from the client, from byte array to FileData object.
+     *
+     * @param data File data sent from the client in the form of a byte array.
+     * @return An intermediate FileData object which stores metadata and content of the file.
+     * @throws IOException Throws IOException.
+     */
+    private static FileData parseFileData(byte[] data) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        DataInputStream dis = new DataInputStream(bais);
+
+        // read file name and its length
+        int fileNameLength = dis.readInt();
+        byte[] fileNameBytes = new byte[fileNameLength];
+        dis.readFully(fileNameBytes);
+        String fileName = new String(fileNameBytes, StandardCharsets.UTF_8);
+
+        // read file content and its length
+        int fileContentLength = dis.readInt();
+        byte[] fileContent = new byte[fileContentLength];
+        dis.readFully(fileContent);
+
+        return new FileData(fileName, fileContent);
     }
 }
