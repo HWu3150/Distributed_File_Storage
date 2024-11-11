@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Distributed File System Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ece9e6, #ffffff);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .upload-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .upload-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .upload-container input[type="file"] {
+            display: none;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007BFF;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 10px;
+            text-decoration: none;
+            border: none;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .file-name {
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 600px) {
+            .upload-container {
+                padding: 20px;
+            }
+
+            .upload-container h1 {
+                font-size: 20px;
+            }
+
+            .button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px;
+            }
+
+            .file-name {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="upload-container">
+    <h1>Upload Your File</h1>
+    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <label for="file-upload" class="button" id="upload-label">Choose File</label>
+        <input id="file-upload" type="file" name="file" />
+        <div id="buttons-container" style="display: none;">
+            <button type="button" class="button" id="change-button">Change File</button>
+            <button type="submit" class="button" id="submit-button">Upload</button>
+        </div>
+    </form>
+    <div class="file-name" id="file-name">No file chosen</div>
+</div>
+
+<script>
+    const fileUpload = document.getElementById('file-upload');
+    const fileNameDisplay = document.getElementById('file-name');
+    const uploadLabel = document.getElementById('upload-label');
+    const buttonsContainer = document.getElementById('buttons-container');
+    const changeButton = document.getElementById('change-button');
+    const submitButton = document.getElementById('submit-button');
+    const form = document.getElementById('upload-form');
+
+    fileUpload.addEventListener('change', function() {
+        const fileName = this.files[0]?.name || 'No file chosen';
+        fileNameDisplay.textContent = fileName;
+
+        if (this.files.length > 0) {
+            uploadLabel.style.display = 'none';
+            buttonsContainer.style.display = 'flex';
+            buttonsContainer.style.justifyContent = 'center';
+        } else {
+            uploadLabel.style.display = 'inline-block';
+            buttonsContainer.style.display = 'none';
+        }
+    });
+
+    changeButton.addEventListener('click', function() {
+        fileUpload.click();
+    });
+
+    form.addEventListener('submit', function() {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Uploading...';
+    });
+</script>
+
+</body>
+</html>
