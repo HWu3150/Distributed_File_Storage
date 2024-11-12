@@ -33,7 +33,7 @@ public class FileStorageService extends SimplifiedService{
             FileData fileData = parseFileData(value);
             File file = new File(storage_dir, fileData.getFileName());
             Files.write(file.toPath(), fileData.getFileContent());
-            System.out.println("File: " + fileData.getFileName() + "has been stored at: " + file.getAbsolutePath());
+            System.out.println("File: " + fileData.getFileName() + " has been stored at: " + file.getAbsolutePath());
             return "File received and stored.".getBytes();
         } catch (IOException e) {
             e.printStackTrace();
