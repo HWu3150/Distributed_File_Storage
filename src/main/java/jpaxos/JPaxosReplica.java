@@ -1,3 +1,6 @@
+package jpaxos;
+
+import jpaxos.FileStorageService;
 import lsr.common.Configuration;
 import lsr.paxos.replica.Replica;
 
@@ -5,7 +8,7 @@ public class JPaxosReplica {
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
-            System.out.println("Usage: java JPaxosReplica <replica_id>");
+            System.out.println("Usage: java jpaxos.JPaxosReplica <replica_id>");
             System.exit(1);
         }
 

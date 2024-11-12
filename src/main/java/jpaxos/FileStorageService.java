@@ -1,4 +1,7 @@
+package jpaxos;
+
 import lsr.service.SimplifiedService;
+import model.FileData;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -79,10 +82,10 @@ public class FileStorageService extends SimplifiedService{
     }
 
     /**
-     * Parse the file data sent from the client, from byte array to FileData object.
+     * Parse the file data sent from the client, from byte array to model.FileData object.
      *
      * @param data File data sent from the client in the form of a byte array.
-     * @return An intermediate FileData object which stores metadata and content of the file.
+     * @return An intermediate model.FileData object which stores metadata and content of the file.
      * @throws IOException Throws IOException.
      */
     private static FileData parseFileData(byte[] data) throws IOException {
