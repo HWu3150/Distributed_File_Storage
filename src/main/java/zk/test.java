@@ -7,6 +7,7 @@ import org.apache.zookeeper.KeeperException;
 import java.io.IOException;
 import java.util.List;
 
+
 public class test {
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         ZKConnectionManager zkConnectionManager = new ZKConnectionManager();
@@ -14,22 +15,26 @@ public class test {
 
         String serviceName = "distributed_file_system";
 
-        ServiceRegistry serviceRegistry = new ServiceRegistry(zkConnectionManager.getZooKeeper(), serviceName);
-//        serviceRegistry.registerService("127.0.0.1:7089");
-//        serviceRegistry.registerService("127.0.0.1:7090");
-//        serviceRegistry.registerService("127.0.0.1:7091");
-
-
-
-        int replicaId = 0;
         Configuration config = new Configuration("jpaxos.properties");
-        JNode jNode = new JNode(config, replicaId, new FileStorageService(replicaId), serviceName, "127.0.0.1:7089", zkConnectionManager);
+        JNode jNode = new JNode(config, 0, new FileStorageService(0), serviceName, "NODE0", zkConnectionManager);
 
-
+        jNode.start();
+        Monitor monitor0 = new Monitor(zkConnectionManager.getZooKeeper(), jNode.getFullPath());
+        monitor0.startMonitoring();
 
         ServiceDiscovery serviceDiscovery = new ServiceDiscovery(zkConnectionManager.getZooKeeper(), serviceName);
         List<String> list = serviceDiscovery.discoverServices();
         System.out.println(list);
+
+
+        Thread.sleep(6000);
+        System.out.println("simulate start...");
+        jNode.forceExit();
+
+
+        ServiceDiscovery serviceDiscovery1 = new ServiceDiscovery(zkConnectionManager.getZooKeeper(), serviceName);
+        List<String> list1 = serviceDiscovery1.discoverServices();
+        System.out.println(list1);
 
     }
 }

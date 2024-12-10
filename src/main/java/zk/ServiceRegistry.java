@@ -41,8 +41,8 @@ public class ServiceRegistry {
 
 
 
-    public void registerService(String address) throws KeeperException, InterruptedException {
+    public String registerService(String address) throws KeeperException, InterruptedException {
         String fullPath = servicePath + "/" + address;
-        zooKeeper.create(fullPath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+        return zooKeeper.create(fullPath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
     }
 }
