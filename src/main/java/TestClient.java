@@ -34,19 +34,7 @@ public class TestClient {
 
             String fileName = path.getFileName().toString();
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(baos);
-
-            // write file name
-            dos.writeInt(fileName.length());
-            dos.writeBytes(fileName);
-
-            // write file content
-            // [file name length][file name][file content length][file content]
-            dos.writeInt(fileContent.length);
-            dos.write(fileContent);
-
-            byte[] dataToSend = baos.toByteArray();
+            byte[] dataToSend = dataToByteArr(fileName, fileContent);
 
             // send request to replica
             byte[] response = client.execute(dataToSend);
@@ -55,5 +43,21 @@ public class TestClient {
         } catch (IOException | ReplicationException e) {
             e.printStackTrace();
         }
+    }
+
+    private static byte[] dataToByteArr(String fileName, byte[] fileContent) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        // write file name
+        dos.writeInt(fileName.length());
+        dos.writeBytes(fileName);
+
+        // write file content
+        // [file name length][file name][file content length][file content]
+        dos.writeInt(fileContent.length);
+        dos.write(fileContent);
+
+        return baos.toByteArray();
     }
 }

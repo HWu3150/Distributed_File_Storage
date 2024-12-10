@@ -1,3 +1,5 @@
+package model;
+
 /**
  * An intermediate class used to store parsed file data from byte array sent from
  * the client.

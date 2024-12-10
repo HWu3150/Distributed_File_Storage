@@ -1,0 +1,4 @@
+sprint:
+  servlet:
+    multipart:
+      enabled: true

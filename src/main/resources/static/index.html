@@ -92,7 +92,7 @@
 
 <div class="upload-container">
     <h1>Upload Your File</h1>
-    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+    <form id="upload-form" enctype="multipart/form-data">
         <label for="file-upload" class="button" id="upload-label">Choose File</label>
         <input id="file-upload" type="file" name="file" />
         <div id="buttons-container" style="display: none;">
@@ -133,8 +133,34 @@
     });
 
     form.addEventListener('submit', function() {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('file', fileUpload.files[0]);
+
         submitButton.disabled = true;
         submitButton.textContent = 'Uploading...';
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            return response.text();
+        })
+        .then(result => {
+            alert(result);
+            fileNameDisplay.textContent = 'No file chosen';
+            uploadLabel.style.display = 'inline-block';
+            buttonsContainer.style.display = 'none';
+        })
+        .catch(error => {
+            alert("File upload failed: " + error.message);
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Upload';
+        });
     });
 </script>
 
