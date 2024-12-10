@@ -64,7 +64,7 @@ public class DBClient {
         return res;
     }
 
-    // 根据文件 ID 查询记录
+    // getByFileId
     public FileEntity getByFileId(int id) {
         String sql = "SELECT * FROM file_metadata WHERE id = ?";
         try (Connection connection = getConnection();
