@@ -1,16 +1,14 @@
 import lsr.common.Configuration;
 import lsr.paxos.client.Client;
-import lsr.paxos.client.ReplicationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import org.apache.commons.cli.*;;
 
-import io.netty.handler.stream.ChunkedFile;
+import lsr.paxos.client.ReplicationException;
+import org.apache.commons.cli.*;
 
 import java.io.IOException;
 
@@ -18,7 +16,7 @@ enum Operation {
     READ, WRITE
 }
 
-public class TestClient {
+public class TestClientChunking {
     public static void main(String[] args) {
         String filePath;
         Operation op = Operation.WRITE;
@@ -46,7 +44,7 @@ public class TestClient {
             }
 
             if (cmd.hasOption("f")) {
-                String filePath = cmd.getOptionValue("f");
+                filePath = cmd.getOptionValue("f");
             } else {
                 formatter.printHelp("CommandLineArgsExample", options);
                 return;
@@ -83,7 +81,7 @@ public class TestClient {
                 DataOutputStream dos = new DataOutputStream(baos);
 
                 dos.writeInt(fileName.length());
-                dos.write(fileName);
+                dos.write(fileName.getBytes());
                 dos.writeInt(chunk.getChunkIndex());
                 dos.writeLong(chunk.getStartOffset());
                 dos.writeLong(chunk.getEndOffset());
@@ -94,6 +92,8 @@ public class TestClient {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ReplicationException e) {
+            throw new RuntimeException(e);
         }
     }
 }
