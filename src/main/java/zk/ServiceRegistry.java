@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class ServiceRegistry {
     private static final Logger log = LoggerFactory.getLogger(ServiceRegistry.class);
     private final ZooKeeper zooKeeper;
@@ -35,7 +36,6 @@ public class ServiceRegistry {
             }
         } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
-            // log.error(e.getMessage(), e);
         }
     }
 

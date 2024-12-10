@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class ZKConnectionManager {
 
     private ZooKeeper zooKeeper;

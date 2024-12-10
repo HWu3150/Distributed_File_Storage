@@ -28,7 +28,6 @@ public class ServiceDiscovery {
                     updateServices();
                 } catch (KeeperException | InterruptedException e) {
                     e.printStackTrace();
-//                    log.error(e.getMessage(), e);
                 }
             }
         });
