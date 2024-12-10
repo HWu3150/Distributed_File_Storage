@@ -12,7 +12,28 @@ public class DBClient {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DATABASE_URL);
+        Connection connection = DriverManager.getConnection(DATABASE_URL);
+
+        String createTableSQL =
+                "CREATE TABLE IF NOT EXISTS file_metadata (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "file_name VARCHAR(128) NOT NULL, " +
+                        "file_type VARCHAR(32), " +
+                        "file_date DATETIME, " +
+                        "file_size BIGINT, " +
+                        "file_url VARCHAR(255)" +
+                        ");";
+
+        try (Statement statement = connection.createStatement()) {
+            // 执行创建表的 SQL
+            statement.execute(createTableSQL);
+            System.out.println("Checked table existence. Table created if not exists.");
+        } catch (SQLException e) {
+            System.err.println("Error while checking/creating table: " + e.getMessage());
+            throw e; // 抛出异常以便调用者处理
+        }
+
+        return connection;
     }
 
     public void insert(FileEntity fileEntity) {
