@@ -25,12 +25,11 @@ public class DBClient {
                         ");";
 
         try (Statement statement = connection.createStatement()) {
-            // 执行创建表的 SQL
             statement.execute(createTableSQL);
             System.out.println("Checked table existence. Table created if not exists.");
         } catch (SQLException e) {
             System.err.println("Error while checking/creating table: " + e.getMessage());
-            throw e; // 抛出异常以便调用者处理
+            throw e;
         }
 
         return connection;
@@ -114,6 +113,26 @@ public class DBClient {
         }
     }
 
+    // deleteByFileId
+    public void deleteByFileId(int id) {
+        String sql = "DELETE FROM file_metadata WHERE id = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, id);
+            int rowsDeleted = preparedStatement.executeUpdate();
+
+            if (rowsDeleted > 0) {
+                System.out.println("Record with ID " + id + " deleted successfully!");
+            } else {
+                System.out.println("No record found with ID: " + id);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error while deleting record: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
         DBClient client = new DBClient();
@@ -128,7 +147,11 @@ public class DBClient {
 
         client.insert(file);
 
+        client.deleteByFileId(1);
+
         //example getall
         client.getAll();
+
+
     }
 }
