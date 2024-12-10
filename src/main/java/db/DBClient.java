@@ -64,6 +64,36 @@ public class DBClient {
         return res;
     }
 
+    // 根据文件 ID 查询记录
+    public FileEntity getByFileId(int id) {
+        String sql = "SELECT * FROM file_metadata WHERE id = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new FileEntity(
+                            resultSet.getInt("id"),
+                            resultSet.getString("file_name"),
+                            resultSet.getString("file_type"),
+                            resultSet.getString("file_date"),
+                            resultSet.getLong("file_size"),
+                            resultSet.getString("file_url")
+                    );
+                } else {
+                    System.out.println("No record found with ID: " + id);
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error while querying by file ID: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     public static void main(String[] args) {
         DBClient client = new DBClient();
         //example insert
