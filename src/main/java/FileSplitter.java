@@ -18,7 +18,7 @@ class FileChunk {
     }
 
     public String getFileName() {
-        return fileName;
+        return fileName + "-" + chunkIndex;
     }
 
     public long getSize() {
