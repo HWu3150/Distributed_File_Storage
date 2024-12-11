@@ -1,6 +1,6 @@
 package zk;
 
-import Jpaxos.FileStorageService;
+import jpaxos.FileStorageService;
 import lsr.common.Configuration;
 import org.apache.zookeeper.KeeperException;
 

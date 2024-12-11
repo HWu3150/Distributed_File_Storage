@@ -18,5 +18,6 @@ public class FileEntity {
     private String fileType;
     private String fileDate;
     private Long fileSize;
+    private byte[] fileContent;
     private String fileUrl;
 }

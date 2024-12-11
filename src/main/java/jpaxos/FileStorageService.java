@@ -1,19 +1,23 @@
 package jpaxos;
 
+import db.DBClient;
+import db.FileEntity;
 import lsr.service.SimplifiedService;
-import model.FileData;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FileStorageService extends SimplifiedService{
 
     private static final String STORAGE_DIR_PREFIX = "replicated_files";
     private final Integer replicaId;
     private final String storage_dir;
+    private final DBClient dbClient;
 
     public FileStorageService(int replicaId) {
         this.replicaId = replicaId;
@@ -21,8 +25,13 @@ public class FileStorageService extends SimplifiedService{
 
         File storageDir = new File(storage_dir);
         if (!storageDir.exists()) {
-            storageDir.mkdirs();
+            boolean succeed = storageDir.mkdirs();
+            if (!succeed) {
+                throw new RuntimeException("Failed to create storage directory.");
+            }
         }
+
+        this.dbClient = new DBClient();
     }
 
     /**
@@ -126,10 +135,16 @@ public class FileStorageService extends SimplifiedService{
      * @throws IOException Throws IOException.
      */
     private byte[] handleUpload(DataInputStream dis) throws IOException {
-        FileData fileData = parseFileData(dis);
-        File file = new File(storage_dir, fileData.getFileName());
-        Files.write(file.toPath(), fileData.getFileContent());
-        System.out.println("File: " + fileData.getFileName() + " has been stored at: " + file.getAbsolutePath());
+        // Store file
+        FileEntity fileEntity = parseFileData(dis);
+        File file = new File(storage_dir, fileEntity.getFileName());
+        Files.write(file.toPath(), fileEntity.getFileContent());
+        System.out.println("File: " + fileEntity.getFileName() + " has been stored at: " + file.getAbsolutePath());
+
+        // Store file metadata in DB
+        fileEntity.setFileUrl(file.getAbsolutePath());
+        dbClient.insert(fileEntity);
+
         return "File received and stored.".getBytes();
     }
 
@@ -142,6 +157,17 @@ public class FileStorageService extends SimplifiedService{
      */
     private byte[] handleDelete(DataInputStream dis) throws IOException {
         return null;
+    }
+
+    /**
+     * Get file type.
+     *
+     * @param fileName Name of the file.
+     * @return File type.
+     */
+    private String getFileType(String fileName) {
+        int index = fileName.lastIndexOf('.');
+        return (index > 0) ? fileName.substring(index + 1) : "unknown";
     }
 
     /**
@@ -181,7 +207,7 @@ public class FileStorageService extends SimplifiedService{
      * @return An intermediate model.FileData object which stores metadata and content of the file.
      * @throws IOException Throws IOException.
      */
-    private static FileData parseFileData(DataInputStream dis) throws IOException {
+    private FileEntity parseFileData(DataInputStream dis) throws IOException {
         // read file name and its length
         int fileNameLength = dis.readInt();
         byte[] fileNameBytes = new byte[fileNameLength];
@@ -193,6 +219,11 @@ public class FileStorageService extends SimplifiedService{
         byte[] fileContent = new byte[fileContentLength];
         dis.readFully(fileContent);
 
-        return new FileData(fileName, fileContent);
+        return FileEntity.builder()
+                .fileName(fileName)
+                .fileType(getFileType(fileName))
+                .fileDate(new SimpleDateFormat("yyyy-MM-dd HH:mmLss").format(new Date()))
+                .fileSize((long) fileContent.length)
+                .build();
     }
 }
