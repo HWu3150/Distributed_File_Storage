@@ -1,9 +1,9 @@
 package service;
 
+import jpaxos.RequestType;
 import lsr.common.Configuration;
 import lsr.paxos.client.Client;
 import lsr.paxos.client.ReplicationException;
-import lsr.paxos.replica.Replica;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -26,7 +26,7 @@ public class FileUploadService {
 
     public String uploadFile(String fileName, byte[] fileContent) {
         try {
-            byte[] dataToSend = dataToByteArr(fileName, fileContent);
+            byte[] dataToSend = prepareUploadRequest(fileName, fileContent);
             byte[] response = client.execute(dataToSend);
             return "Response received: " + new String(response);
         } catch(IOException |ReplicationException e) {
@@ -35,9 +35,21 @@ public class FileUploadService {
         }
     }
 
-    private static byte[] dataToByteArr(String fileName, byte[] fileContent) throws IOException {
+    /**
+     * Prepare upload request.
+     *
+     * @param fileName Name of the file.
+     * @param fileContent File content.
+     * @return Upload request in byte array form.
+     * @throws IOException Throws IOException.
+     */
+    private byte[] prepareUploadRequest(String fileName,
+                                        byte[] fileContent) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
+
+        // write request type code
+        dos.write(RequestType.UPLOAD.getCode());
 
         // write file name
         dos.writeInt(fileName.length());

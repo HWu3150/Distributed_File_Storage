@@ -6,6 +6,7 @@ import model.FileData;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileStorageService extends SimplifiedService{
@@ -25,22 +26,34 @@ public class FileStorageService extends SimplifiedService{
     }
 
     /**
-     * Stores file at current replica.
+     * Process client request.
      *
-     * @param value File to be stored in the form a byte array.
-     * @return Whether file has been successfully stored.
+     * @param value Request from the client.
+     * @return Execution result.
      */
     @Override
     protected byte[] execute(byte[] value) {
         try {
-            FileData fileData = parseFileData(value);
-            File file = new File(storage_dir, fileData.getFileName());
-            Files.write(file.toPath(), fileData.getFileContent());
-            System.out.println("File: " + fileData.getFileName() + " has been stored at: " + file.getAbsolutePath());
-            return "File received and stored.".getBytes();
-        } catch (IOException e) {
+            ByteArrayInputStream bais = new ByteArrayInputStream(value);
+            DataInputStream dis = new DataInputStream(bais);
+            int requestTypeCode = dis.readInt();
+            RequestType requestType = getRequestTypeByCode(requestTypeCode);
+
+            switch (requestType) {
+                case DOWNLOAD:
+                    return handleDownload(dis);
+                case UPLOAD:
+                    return handleUpload(dis);
+                case DELETE:
+                    return handleDelete(dis);
+                default:
+                    throw new IllegalArgumentException("Invalid request type code: "
+                            + requestTypeCode + ". Expecting 0: " +
+                            "Download, 1: Upload, 2: Delete.");
+            }
+        } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
-            return "Failed to store file.".getBytes();
+            return "Failed process request.".getBytes();
         }
     }
 
@@ -82,16 +95,93 @@ public class FileStorageService extends SimplifiedService{
     }
 
     /**
-     * Parse the file data sent from the client, from byte array to model.FileData object.
+     * Handle file download request.
      *
-     * @param data File data sent from the client in the form of a byte array.
+     * @param dis Data input stream.
+     * @return File content in byte array form.
+     * @throws IOException Throws IOException.
+     */
+    private byte[] handleDownload(DataInputStream dis) throws IOException {
+        // Read file name
+        int fileNameLength = dis.readInt();
+        byte[] fileNameBytes = new byte[fileNameLength];
+        dis.readFully(fileNameBytes);
+        String fileName = new String(fileNameBytes);
+
+        // Read file content
+        byte[] fileContent = readFileFromStorage(fileName);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.write(fileContent);
+
+        return baos.toByteArray();
+    }
+
+    /**
+     * Handle file upload request.
+     *
+     * @param dis Data input stream.
+     * @return File stored.
+     * @throws IOException Throws IOException.
+     */
+    private byte[] handleUpload(DataInputStream dis) throws IOException {
+        FileData fileData = parseFileData(dis);
+        File file = new File(storage_dir, fileData.getFileName());
+        Files.write(file.toPath(), fileData.getFileContent());
+        System.out.println("File: " + fileData.getFileName() + " has been stored at: " + file.getAbsolutePath());
+        return "File received and stored.".getBytes();
+    }
+
+    /**
+     * Handle file delete request.
+     *
+     * @param dis Data input stream.
+     * @return Deletion successful/failed.
+     * @throws IOException Throws IOException.
+     */
+    private byte[] handleDelete(DataInputStream dis) throws IOException {
+        return null;
+    }
+
+    /**
+     * Get type of the request by its code.
+     *
+     * @param code Code of the request.
+     * @return Type of the request.
+     */
+    private static RequestType getRequestTypeByCode(int code) {
+        for (RequestType type : RequestType.values()) {
+            if (type.getCode() == code) {
+                return type;
+            }
+        }
+        return RequestType.UNKNOWN;
+    }
+
+    /**
+     * Read file content from local storage by file name.
+     *
+     * @param fileName Name of the file.
+     * @return File content in byte array form.
+     * @throws IOException Throws IOException.
+     */
+    private byte[] readFileFromStorage(String fileName) throws IOException {
+        Path filePath = Paths.get(storage_dir, fileName);
+        if (!Files.exists(filePath)) {
+            throw new IOException("File not found: " + filePath);
+        }
+        return Files.readAllBytes(filePath);
+    }
+
+    /**
+     * Parse the file data sent from the client, from data input stream to model.FileData object.
+     *
+     * @param dis File data sent from the client in the form of data input stream.
      * @return An intermediate model.FileData object which stores metadata and content of the file.
      * @throws IOException Throws IOException.
      */
-    private static FileData parseFileData(byte[] data) throws IOException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        DataInputStream dis = new DataInputStream(bais);
-
+    private static FileData parseFileData(DataInputStream dis) throws IOException {
         // read file name and its length
         int fileNameLength = dis.readInt();
         byte[] fileNameBytes = new byte[fileNameLength];
