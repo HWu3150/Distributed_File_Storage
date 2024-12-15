@@ -40,6 +40,7 @@ public class FileDownloadService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
         dos.writeInt(RequestType.DOWNLOAD.getCode());
+        dos.writeInt(fileName.length());
         dos.writeBytes(fileName);
         return baos.toByteArray();
     }
