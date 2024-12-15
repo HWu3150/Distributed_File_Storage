@@ -1,4 +1,4 @@
-package jpaxos;
+package common;
 
 import lombok.Getter;
 

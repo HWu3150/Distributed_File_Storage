@@ -1,6 +1,7 @@
 package service;
 
 import client.SessionScopedJPaxosClient;
+import common.RequestType;
 import lsr.paxos.client.ReplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;

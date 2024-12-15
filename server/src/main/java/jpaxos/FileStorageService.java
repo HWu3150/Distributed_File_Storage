@@ -1,5 +1,6 @@
 package jpaxos;
 
+import common.RequestType;
 import lsr.service.SimplifiedService;
 
 import java.io.*;
@@ -8,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileStorageService extends SimplifiedService{
+public class FileStorageService extends SimplifiedService {
 
     private static final String STORAGE_DIR_PREFIX = "replicated_files";
     private final Integer replicaId;

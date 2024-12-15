@@ -1,6 +1,7 @@
 package service;
 
 import client.SessionScopedJPaxosClient;
+import common.RequestType;
 import db.DBClient;
 import db.FileEntity;
 import lsr.paxos.client.ReplicationException;
