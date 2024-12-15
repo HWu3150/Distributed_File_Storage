@@ -1,0 +1,16 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# jpaxos logs directory
+jpaxos_logs/
+
+# replicated files replica directories
+replicated_files_replica_*/
+
+# Other general ignore patterns
+**/target/
+*.log
+*.tmp
+*.bak
+*.swp
