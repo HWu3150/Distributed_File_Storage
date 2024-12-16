@@ -1,16 +1,6 @@
 #!/bin/bash
 
-echo "Detecting OS..."
-# Set line separator for different OS
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-    # Windows
-    SEP="\\"
-    LIB_PATH="libs${SEP}jpaxos.jar"
-else
-    # Linux/macOS
-    SEP="/"
-    LIB_PATH="libs${SEP}jpaxos.jar"
-fi
+LIB_PATH="libs/jpaxos.jar"
 
 echo "Detected OS: $OSTYPE"
 echo "Using path: $LIB_PATH"

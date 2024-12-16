@@ -12,7 +12,7 @@ different operating systems (Linux, macOS, and Windows).
 1. Ensure you have the following installed on your system:
     - Java Development Kit (JDK) version 11
     - Maven
-    - Bash shell (for Linux, macOS, or PowerShell on Windows)
+    - Bash shell (for Linux, macOS, or Git Bash / WSL on Windows)
 
 2. Verify that `jpaxos.jar` is located in the `libs` directory within the root of this project.
 
@@ -28,7 +28,10 @@ different operating systems (Linux, macOS, and Windows).
    ```
    On Windows:
    ```bash
-   bash setup.sh
+   bash .\setup.sh    # Using Git Bash
+   ```
+   ```bash
+   wsl bash ./setup.sh    # Using WSL
    ```
 
 3. The script will:
