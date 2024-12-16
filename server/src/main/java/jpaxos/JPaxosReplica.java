@@ -1,5 +1,6 @@
 package jpaxos;
 
+import db.DBClient;
 import lsr.common.Configuration;
 import lsr.paxos.replica.Replica;
 
@@ -18,7 +19,7 @@ public class JPaxosReplica {
         Configuration config = new Configuration("jpaxos.properties");
 
         // create a new replica instance
-        Replica replica = new Replica(config, replicaId, new FileStorageService(replicaId));
+        Replica replica = new Replica(config, replicaId, new FileStorageService(replicaId, new DBClient()));
 
         // start replica
         replica.start();

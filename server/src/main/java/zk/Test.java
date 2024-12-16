@@ -1,8 +1,10 @@
 package zk;
 
+import db.DBClient;
 import jpaxos.FileStorageService;
 import lsr.common.Configuration;
 import org.apache.zookeeper.KeeperException;
+import org.sqlite.core.DB;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +18,7 @@ public class Test {
         String serviceName = "distributed_file_system";
 
         Configuration config = new Configuration("jpaxos.properties");
-        JNode jNode = new JNode(config, 0, new FileStorageService(0), serviceName, "NODE0", zkConnectionManager);
+        JNode jNode = new JNode(config, 0, new FileStorageService(0, new DBClient()), serviceName, "NODE0", zkConnectionManager);
 
         jNode.start();
         Monitor monitor0 = new Monitor(zkConnectionManager.getZooKeeper(), jNode.getFullPath());

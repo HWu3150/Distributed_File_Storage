@@ -1,6 +1,5 @@
 package db;
 
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
@@ -14,12 +13,12 @@ public class DBClient {
     private static final Map<Integer, String> DATABASE_URL_MAP = new HashMap<>();
 
     static {
-        DATABASE_URL_MAP.put(1, "jdbc:sqlite:identifier.sqlite");
+        DATABASE_URL_MAP.put(0, "jdbc:sqlite:identifier.sqlite0");
+        DATABASE_URL_MAP.put(1, "jdbc:sqlite:identifier.sqlite1");
         DATABASE_URL_MAP.put(2, "jdbc:sqlite:identifier.sqlite2");
-        DATABASE_URL_MAP.put(3, "jdbc:sqlite:identifier.sqlite3");
     }
 
-    private static final String DATABASE_URL = "jdbc:sqlite:identifier.sqlite";
+//    private static final String DATABASE_URL = "jdbc:sqlite:identifier.sqlite0";
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -48,7 +47,7 @@ public class DBClient {
         return connection;
     }
 
-    public void insert(Integer replicaId,FileEntity fileEntity) {
+    public void insert(Integer replicaId, FileEntity fileEntity) {
         String sql = "INSERT INTO file_metadata (file_name, file_type, file_date, file_size, file_url) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = getConnection(replicaId);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

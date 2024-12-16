@@ -142,6 +142,9 @@
             <thead>
             <tr>
                 <th>File Name</th>
+                <th>File Type</th>
+                <th>Size</th>
+                <th>Created Date</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -223,7 +226,10 @@
                     const fileRow = document.createElement('tr');
 
                     fileRow.innerHTML = `
-                        <td>${file}</td>
+                        <td>${file.fileName}</td>
+                        <td>${file.fileType}</td>
+                        <td>${(file.fileSize / 1024).toFixed(2)} KB</td>
+                        <td>${file.fileDate}</td>
                         <td>
                             <button class="button download-button" data-filename="${file}">Download</button>
                             <button class="button delete-button" data-filename="${file}">Delete</button>

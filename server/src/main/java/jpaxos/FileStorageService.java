@@ -1,6 +1,9 @@
 package jpaxos;
 
+import common.FileDTO;
 import common.RequestType;
+import db.DBClient;
+import db.FileEntity;
 import lsr.service.SimplifiedService;
 
 import java.io.*;
@@ -8,16 +11,22 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class FileStorageService extends SimplifiedService {
 
     private static final String STORAGE_DIR_PREFIX = "replicated_files";
     private final Integer replicaId;
     private final String storage_dir;
+    private final DBClient dbClient;
 
-    public FileStorageService(int replicaId) {
+    public FileStorageService(int replicaId, DBClient dbClient) {
         this.replicaId = replicaId;
         this.storage_dir = STORAGE_DIR_PREFIX + "_replica_" + replicaId;
+        this.dbClient = dbClient;
 
         File storageDir = new File(storage_dir);
         if (!storageDir.exists()) {
@@ -49,6 +58,8 @@ public class FileStorageService extends SimplifiedService {
                     return handleUpload(dis);
                 case DELETE:
                     return handleDelete(dis);
+                case LIST:
+                    return handleList();
                 default:
                     throw new IllegalArgumentException("Invalid request type code: "
                             + requestTypeCode + ". Expecting 0: " +
@@ -131,9 +142,22 @@ public class FileStorageService extends SimplifiedService {
     private byte[] handleUpload(DataInputStream dis) throws IOException {
         // Store file
         FileData fileData = parseFileData(dis);
-        File file = new File(storage_dir, fileData.getFileName());
+        String fileName = fileData.getFileName();
+        File file = new File(storage_dir, fileName);
         Files.write(file.toPath(), fileData.getFileContent());
         System.out.println("File: " + fileData.getFileName() + " has been stored at: " + file.getAbsolutePath());
+
+        // Store file metadata
+        FileEntity fileEntity = FileEntity.builder()
+                .fileName(fileName)
+                .fileType(getFileType(fileName))
+                .fileDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+                .fileSize((long) fileData.getFileContent().length)
+                .fileUrl(file.getAbsolutePath())
+                .build();
+        dbClient.insert(replicaId, fileEntity);
+        System.out.println("File metadata has been stored in replica_" + replicaId + "'s database.");
+
         return file.getAbsolutePath().getBytes();
     }
 
@@ -146,6 +170,41 @@ public class FileStorageService extends SimplifiedService {
      */
     private byte[] handleDelete(DataInputStream dis) throws IOException {
         return null;
+    }
+
+    /**
+     * Handle list files request.
+     *
+     * @return List of files in byte array form.
+     */
+    private byte[] handleList() throws IOException{
+        List<FileDTO> fileDTOs = new ArrayList<>();
+        List<FileEntity> fileEntities = dbClient.getAll(replicaId);
+        for (FileEntity entity : fileEntities) {
+            fileDTOs.add(FileDTO.builder()
+                    .fileName(entity.getFileName())
+                    .fileType(entity.getFileType())
+                    .fileDate(entity.getFileDate())
+                    .fileSize(entity.getFileSize())
+                    .build()
+            );
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(fileDTOs);
+        oos.close();
+        return baos.toByteArray();
+    }
+
+    /**
+     * Get file type.
+     *
+     * @param fileName Name of the file.
+     * @return File type.
+     */
+    private String getFileType(String fileName) {
+        int index = fileName.lastIndexOf('.');
+        return (index > 0) ? fileName.substring(index + 1) : "unknown";
     }
 
     /**

@@ -7,6 +7,7 @@ public enum RequestType {
     DOWNLOAD(0),
     UPLOAD(1),
     DELETE(2),
+    LIST(3),
     UNKNOWN(-1);
 
     private final int code;
