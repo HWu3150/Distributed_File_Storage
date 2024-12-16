@@ -1,21 +1,31 @@
 package db;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 
-@Component
+@Service
 public class DBClient {
+
+    private static final Map<Integer, String> DATABASE_URL_MAP = new HashMap<>();
+
+    static {
+        DATABASE_URL_MAP.put(1, "jdbc:sqlite:identifier.sqlite");
+        DATABASE_URL_MAP.put(2, "jdbc:sqlite:identifier.sqlite2");
+        DATABASE_URL_MAP.put(3, "jdbc:sqlite:identifier.sqlite3");
+    }
+
     private static final String DATABASE_URL = "jdbc:sqlite:identifier.sqlite";
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private Connection getConnection() throws SQLException {
-        Connection connection = DriverManager.getConnection(DATABASE_URL);
+    private Connection getConnection(Integer replicaId) throws SQLException {
+        String databaseUrl = DATABASE_URL_MAP.get(replicaId);
+        Connection connection = DriverManager.getConnection(databaseUrl);
 
         String createTableSQL =
                 "CREATE TABLE IF NOT EXISTS file_metadata (" +
@@ -38,9 +48,9 @@ public class DBClient {
         return connection;
     }
 
-    public void insert(FileEntity fileEntity) {
+    public void insert(Integer replicaId,FileEntity fileEntity) {
         String sql = "INSERT INTO file_metadata (file_name, file_type, file_date, file_size, file_url) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = getConnection();
+        try (Connection connection = getConnection(replicaId);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, fileEntity.getFileName());
@@ -59,11 +69,11 @@ public class DBClient {
         }
     }
 
-    public List<FileEntity> getAll() {
+    public List<FileEntity> getAll(Integer replicaId) {
         List<FileEntity> res = new ArrayList<>();
         String sql = "SELECT * FROM file_metadata";
 
-        try (Connection connection = getConnection();
+        try (Connection connection = getConnection(replicaId);
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
 
@@ -88,9 +98,9 @@ public class DBClient {
     }
 
     // getByFileId
-    public FileEntity getByFileId(int id) {
+    public FileEntity getByFileId(Integer replicaId,int id) {
         String sql = "SELECT * FROM file_metadata WHERE id = ?";
-        try (Connection connection = getConnection();
+        try (Connection connection = getConnection(replicaId);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, id);
@@ -117,9 +127,9 @@ public class DBClient {
     }
 
     // deleteByFileId
-    public void deleteByFileId(int id) {
+    public void deleteByFileId(Integer replicaId,int id) {
         String sql = "DELETE FROM file_metadata WHERE id = ?";
-        try (Connection connection = getConnection();
+        try (Connection connection = getConnection(replicaId);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, id);
@@ -148,12 +158,12 @@ public class DBClient {
                 .fileUrl("www.google.com")
                 .build();
 
-        client.insert(file);
-
-        client.deleteByFileId(1);
+        client.insert(2,file);
 
         //example getall
-        client.getAll();
+        client.getAll(3);
+
+        client.deleteByFileId(2,1);
 
 
     }
