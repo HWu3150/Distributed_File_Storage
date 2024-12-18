@@ -1,4 +1,17 @@
-# JPaxos Setup Instructions
+# A Distributed File Storage System
+## What Is It?
+This project is a **distributed file storage system** designed to ensure high availability and fault-tolerance across distributed replicas.
+
+## Features
+- Fault Tolerance
+- File Operations
+- Data Consistency
+- Snapshot Recovery
+
+## Project Overview
+The **Distributed File Storage System** is built on top of **JPaxos**, a multi-threaded implementation of the Paxos protocol, to provide a fault-tolerant architecture for file storage. The system employs multiple replicas to ensure data availability and integrity, with a leader elected to coordinate updates across the replicas. The service is accessible via a frontend interface that allows clients to interact with the system through a simple web page for uploading, downloading, and managing files.
+
+## JPaxos Setup Instructions
 
 The JPaxos library is not available in the Maven Central Repository. To use it in this project, we have manually built 
 the JPaxos source code using Ant and packaged it as `jpaxos.jar`. You will need to install this JAR file into your local 
@@ -7,16 +20,16 @@ Maven repository before running the project.
 To simplify this process, a `setup.sh` script has been provided. This script is designed to work across 
 different operating systems (Linux, macOS, and Windows).
 
-## Prerequisites
+### Prerequisites
 
 1. Ensure you have the following installed on your system:
     - Java Development Kit (JDK) version 11
     - Maven
-    - Bash shell (for Linux, macOS, or Git Bash / WSL on Windows)
+    - Bash shell (Git Bash / WSL on Windows)
 
 2. Verify that `jpaxos.jar` is located in the `libs` directory within the root of this project.
 
-## Installation Steps
+### Installation Steps
 
 1. Open a terminal and navigate to the project root directory:
    ```bash
@@ -36,14 +49,14 @@ different operating systems (Linux, macOS, and Windows).
      - Version: ```1.0```
      - Packaging: ```jar```
 
-## Script Output
+### Script Output
 - If successful, you will see:
     ```cmd
     Setup completed successfully!
     ```
 - If there are errors, the script will notify you with a message and terminate.
 
-# Running the Test Program in IntelliJ IDEA
+## Running the Test Program in IntelliJ IDEA
 Please follow the instructions below to run the test program using IntelliJ IDEA. This guide includes setting up the 
 necessary run configurations and arguments.
 
