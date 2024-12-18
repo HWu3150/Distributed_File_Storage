@@ -33,7 +33,7 @@ public class DBClient {
                         "file_type VARCHAR(32), " +
                         "file_date DATETIME, " +
                         "file_size BIGINT, " +
-                        "file_url VARCHAR(255)" +
+                        "file_url VARCHAR(255), " +
                         "is_active INTEGER" +
                         ");";
 
@@ -173,9 +173,10 @@ public class DBClient {
         String insertSQL = "INSERT INTO file_metadata (file_name, file_type, file_date, file_size, file_url, is_active) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = getConnection(replicaId)) {
+
             // Clear the table
-            try (Statement statement = connection.createStatement()) {
-                statement.executeUpdate(deleteSQL);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL)) {
+                preparedStatement.executeUpdate();
             }
 
             // Batching re-insertions
