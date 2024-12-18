@@ -68,7 +68,7 @@ the valid IDs are ```0```, ```1```, or ```2```.
 7. Click ```OK``` to save the configuration.
 
 #### Screenshot:
-![run_replica](https://imgur.com/a/FLtCJlx)
+[![start-replica.png](https://i.postimg.cc/XJmzFk76/start-replica.png)](https://postimg.cc/0MGn1mwV)
 
 ### 2. Running the Service Manager
 To run the Service Manager, please follow the steps below:
@@ -81,7 +81,7 @@ To run the Service Manager, please follow the steps below:
 6. Click ```OK``` to save the configuration.
 
 #### Screenshot:
-![run_service_manager](https://imgur.com/a/vJhZu1A)
+[![start-service-manager.png](https://i.postimg.cc/4xgjBPvJ/start-service-manager.png)](https://postimg.cc/jLM8jzk9)
 
 ### 3. Simplifying Steps with Compound Configuration
 To simplify the process of starting multiple applications, you can combine them into a ```Compound configuration```. 
@@ -97,4 +97,4 @@ Service Manager configurations.
 5. Click ```OK``` to save the compound configuration.
 
 #### Screenshot:
-![run_all](https://i.postimg.cc/W33n5Ffp/start-all.png)
+[![start-all.png](https://i.postimg.cc/W33n5Ffp/start-all.png)](https://postimg.cc/KK6Bzz2C)
