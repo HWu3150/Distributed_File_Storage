@@ -26,13 +26,6 @@ different operating systems (Linux, macOS, and Windows).
    ```bash
     ./setup.sh
    ```
-   On Windows:
-   ```bash
-   bash .\setup.sh    # Using Git Bash
-   ```
-   ```bash
-   wsl bash ./setup.sh    # Using WSL
-   ```
 
 3. The script will:
    - Detect your operating system.
@@ -49,3 +42,59 @@ different operating systems (Linux, macOS, and Windows).
     Setup completed successfully!
     ```
 - If there are errors, the script will notify you with a message and terminate.
+
+# Running the Test Program in IntelliJ IDEA
+Please follow the instructions below to run the test program using IntelliJ IDEA. This guide includes setting up the 
+necessary run configurations and arguments.
+
+### 1. Running the Replica
+To run a replica, you need to create a run configuration in IntelliJ IDEA. The configuration requires JDK 11 and 
+specific arguments to identify the replica.
+
+#### Steps:
+1. Open IntelliJ IDEA and go to ```Run``` -> ```Edit Configurations```.
+
+2. Click the ```+``` icon and select ```Application```.
+
+3. In the Name field, enter whatever name preferred.
+
+4. In the ```Main class``` field, specify the class for the replica (e.g., ```jpaxos.JPaxosReplica```).
+
+5. Set the JDK to version 11.
+
+6. In the ```Program arguments``` field, enter the replica ID. For the current ```jpaxos.properties``` configuration, 
+the valid IDs are ```0```, ```1```, or ```2```.
+
+7. Click ```OK``` to save the configuration.
+
+#### Screenshot:
+![run_replica](https://imgur.com/a/FLtCJlx)
+
+### 2. Running the Service Manager
+To run the Service Manager, please follow the steps below:
+
+1. Open ```Run``` -> ```Edit Configurations```.
+2. Click the ```+``` icon and select ```Application```.
+3. In the Name field, enter whatever name preferred.
+4. In the ```Main class``` field, specify the class for the Service Manager (e.g., ```Application```).
+5. Set the JDK to version 11.
+6. Click ```OK``` to save the configuration.
+
+#### Screenshot:
+![run_service_manager](https://imgur.com/a/vJhZu1A)
+
+### 3. Simplifying Steps with Compound Configuration
+To simplify the process of starting multiple applications, you can combine them into a ```Compound configuration```. 
+This allows you to start the ```Replica``` and ```Service Manager``` together with one click.
+
+#### Steps:
+
+1. Open ```Run``` -> ```Edit Configurations```.
+2. Click the ```+``` icon and select ```Compound```.
+3. In the Name field, enter whatever name preferred.
+4. In the ```Run/Debug Configurations``` section, click ```Add``` and select the previously created Replica and 
+Service Manager configurations.
+5. Click ```OK``` to save the compound configuration.
+
+#### Screenshot:
+![run_all](https://imgur.com/F8HFSjg)
