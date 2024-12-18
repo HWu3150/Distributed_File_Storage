@@ -220,9 +220,13 @@
         fetch(`${API_BASE_URL}/files`)
             .then(response => response.json())
             .then(files => {
-                console.log('Files fetched:', files); // 调试用
+                console.log('Files fetched:', files);
                 fileListContainer.innerHTML = '';
                 files.forEach(file => {
+                    if (file.isActive !== 1) {
+                        return; // Skip inactive files
+                    }
+
                     const fileRow = document.createElement('tr');
 
                     fileRow.innerHTML = `
@@ -232,7 +236,7 @@
                         <td>${file.fileDate}</td>
                         <td>
                             <button class="button download-button" data-filename="${file}">Download</button>
-                            <button class="button delete-button" data-filename="${file}">Delete</button>
+                            <button class="button delete-button" data-id="${file.fileId}">Delete</button>
                         </td>
                     `;
 
@@ -249,10 +253,13 @@
 
                 document.querySelectorAll('.delete-button').forEach(button => {
                     button.addEventListener('click', function() {
-                        const fileName = this.getAttribute('data-filename');
-                        deleteFile(fileName);
+                        const fileId = this.getAttribute('data-id');
+                        deleteFile(fileId);
                     });
                 });
+            })
+            .catch(error => {
+                console.error("Error fetching file list: ", error);
             });
     }
 
@@ -268,8 +275,8 @@
     }
 
     // Delete file
-    function deleteFile(fileName) {
-        fetch(`${API_BASE_URL}/delete/${fileName}`, {
+    function deleteFile(fileId) {
+        fetch(`${API_BASE_URL}/delete/${fileId}`, {
             method: 'DELETE'
         })
         .then(response => response.text())
