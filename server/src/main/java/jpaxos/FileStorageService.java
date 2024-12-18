@@ -72,16 +72,20 @@ public class FileStorageService extends SimplifiedService {
     }
 
     /**
-     * Makes snapshot of current service state (list of files in the current replica).
+     * Makes snapshot of current service state.
      *
      * @return Byte array of the snapshot.
      */
     @Override
     protected byte[] makeSnapshot() {
         try{
+            File[] files = new File(storage_dir).listFiles();
+            List<FileEntity> fileEntities = dbClient.getAll(replicaId);
+            // Encapsulate current stored files and file metadata.
+            SnapshotData snapshotData = new SnapshotData(files, fileEntities);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(new File(storage_dir).listFiles());
+            oos.writeObject(snapshotData);
             oos.close();
             return baos.toByteArray();
         } catch (IOException e) {
@@ -99,10 +103,19 @@ public class FileStorageService extends SimplifiedService {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(snapshot);
             ObjectInputStream ois = new ObjectInputStream(bais);
-            File[] files = (File[]) ois.readObject();
+            SnapshotData snapshotData = (SnapshotData) ois.readObject();
+
+            // Recover stored files
+            File[] files = snapshotData.getFiles();
             for (File file : files) {
                 Files.copy(file.toPath(), Paths.get(storage_dir, file.getName()));
             }
+
+            // Recover file metadata
+            List<FileEntity> fileEntities = snapshotData.getFileEntities();
+            dbClient.clearAndInsert(replicaId, fileEntities);
+
+            System.out.println("Snapshot restored successfully!");
         } catch (Exception e) {
             throw new RuntimeException("Failed to restore snapshot", e);
         }

@@ -167,6 +167,38 @@ public class DBClient {
         }
     }
 
+    // For recovery purpose, clear the table and re-insert file metadata
+    public void clearAndInsert(Integer replicaId, List<FileEntity> fileEntities) {
+        String deleteSQL = "DELETE FROM file_metadata";
+        String insertSQL = "INSERT INTO file_metadata (file_name, file_type, file_date, file_size, file_url, is_active) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = getConnection(replicaId)) {
+            // Clear the table
+            try (Statement statement = connection.createStatement()) {
+                statement.executeUpdate(deleteSQL);
+            }
+
+            // Batching re-insertions
+            try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+                for (FileEntity fileEntity : fileEntities) {
+                    preparedStatement.setString(1, fileEntity.getFileName());
+                    preparedStatement.setString(2, fileEntity.getFileType());
+                    preparedStatement.setString(3, fileEntity.getFileDate());
+                    preparedStatement.setLong(4, fileEntity.getFileSize());
+                    preparedStatement.setString(5, fileEntity.getFileUrl());
+                    preparedStatement.setInt(6, fileEntity.getIsActive());
+                    preparedStatement.addBatch();
+                }
+                preparedStatement.executeBatch();
+            }
+
+            System.out.println("Database restored successfully.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Error while restoring database", e);
+        }
+    }
+
+
     public static void main(String[] args) {
         DBClient client = new DBClient();
         //example insert
