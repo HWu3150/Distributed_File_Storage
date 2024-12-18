@@ -97,4 +97,4 @@ Service Manager configurations.
 5. Click ```OK``` to save the compound configuration.
 
 #### Screenshot:
-![run_all](https://imgur.com/a/8cy7LNv)
+![run_all](https://i.postimg.cc/W33n5Ffp/start-all.png)
