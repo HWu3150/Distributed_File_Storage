@@ -34,6 +34,7 @@ public class DBClient {
                         "file_date DATETIME, " +
                         "file_size BIGINT, " +
                         "file_url VARCHAR(255)" +
+                        "is_active INTEGER" +
                         ");";
 
         try (Statement statement = connection.createStatement()) {
@@ -48,7 +49,7 @@ public class DBClient {
     }
 
     public void insert(Integer replicaId, FileEntity fileEntity) {
-        String sql = "INSERT INTO file_metadata (file_name, file_type, file_date, file_size, file_url) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO file_metadata (file_name, file_type, file_date, file_size, file_url, is_active) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = getConnection(replicaId);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -57,6 +58,7 @@ public class DBClient {
             preparedStatement.setString(3, fileEntity.getFileDate());
             preparedStatement.setLong(4, fileEntity.getFileSize());
             preparedStatement.setString(5, fileEntity.getFileUrl());
+            preparedStatement.setInt(6, fileEntity.getIsActive());
 
             preparedStatement.executeUpdate();
             System.out.println("Record inserted successfully!");
@@ -85,6 +87,7 @@ public class DBClient {
                                 .fileDate(resultSet.getString("file_date"))
                                 .fileSize(resultSet.getLong("file_size"))
                                 .fileUrl(resultSet.getString("file_url"))
+                                .isActive(resultSet.getInt("is_active"))
                                 .build();
 
                 res.add(file);
@@ -112,6 +115,7 @@ public class DBClient {
                             .fileDate(resultSet.getString("file_date"))
                             .fileSize(resultSet.getLong("file_size"))
                             .fileUrl(resultSet.getString("file_url"))
+                            .isActive(resultSet.getInt("is_active"))
                             .build();
                 } else {
                     System.out.println("No record found with ID: " + id);
@@ -125,23 +129,40 @@ public class DBClient {
         }
     }
 
-    // deleteByFileId
+    // soft deleteByFileId
     public void deleteByFileId(Integer replicaId,int id) {
-        String sql = "DELETE FROM file_metadata WHERE id = ?";
+//        String sql = "DELETE FROM file_metadata WHERE id = ?";
+//        try (Connection connection = getConnection(replicaId);
+//             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+//
+//            preparedStatement.setInt(1, id);
+//            int rowsDeleted = preparedStatement.executeUpdate();
+//
+//            if (rowsDeleted > 0) {
+//                System.out.println("Record with ID " + id + " deleted successfully!");
+//            } else {
+//                System.out.println("No record found with ID: " + id);
+//            }
+//
+//        } catch (SQLException e) {
+//            System.err.println("Error while deleting record: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+        String sql = "UPDATE file_metadata SET is_active = 0 WHERE id = ?";
         try (Connection connection = getConnection(replicaId);
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, id);
-            int rowsDeleted = preparedStatement.executeUpdate();
+            int rowsUpdated = preparedStatement.executeUpdate();
 
-            if (rowsDeleted > 0) {
-                System.out.println("Record with ID " + id + " deleted successfully!");
+            if (rowsUpdated > 0) {
+                System.out.println("Record with ID " + id + " marked as inactive successfully!");
             } else {
                 System.out.println("No record found with ID: " + id);
             }
 
         } catch (SQLException e) {
-            System.err.println("Error while deleting record: " + e.getMessage());
+            System.err.println("Error while marking record as inactive: " + e.getMessage());
             e.printStackTrace();
         }
     }

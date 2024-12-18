@@ -57,7 +57,7 @@ public class FileStorageService extends SimplifiedService {
                 case UPLOAD:
                     return handleUpload(dis);
                 case DELETE:
-                    return handleDelete(dis);
+                    return handleSoftDelete(dis);
                 case LIST:
                     return handleList();
                 default:
@@ -154,6 +154,7 @@ public class FileStorageService extends SimplifiedService {
                 .fileDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
                 .fileSize((long) fileData.getFileContent().length)
                 .fileUrl(file.getAbsolutePath())
+                .isActive(1)
                 .build();
         dbClient.insert(replicaId, fileEntity);
         System.out.println("File metadata has been stored in replica_" + replicaId + "'s database.");
@@ -162,14 +163,16 @@ public class FileStorageService extends SimplifiedService {
     }
 
     /**
-     * Handle file delete request.
+     * Handle file soft delete request.
      *
      * @param dis Data input stream.
      * @return Deletion successful/failed.
      * @throws IOException Throws IOException.
      */
-    private byte[] handleDelete(DataInputStream dis) throws IOException {
-        return null;
+    private byte[] handleSoftDelete(DataInputStream dis) throws IOException {
+        int fileId = dis.readInt();
+        dbClient.deleteByFileId(replicaId, fileId);
+        return "File delete successful".getBytes();
     }
 
     /**
@@ -182,10 +185,12 @@ public class FileStorageService extends SimplifiedService {
         List<FileEntity> fileEntities = dbClient.getAll(replicaId);
         for (FileEntity entity : fileEntities) {
             fileDTOs.add(FileDTO.builder()
+                    .id(entity.getId())
                     .fileName(entity.getFileName())
                     .fileType(entity.getFileType())
                     .fileDate(entity.getFileDate())
                     .fileSize(entity.getFileSize())
+                    .isActive(entity.getIsActive())
                     .build()
             );
         }

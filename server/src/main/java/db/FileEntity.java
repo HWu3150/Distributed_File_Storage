@@ -17,4 +17,5 @@ public class FileEntity {
     private String fileDate;
     private Long fileSize;
     private String fileUrl;
+    private Integer isActive;
 }
